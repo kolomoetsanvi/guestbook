@@ -4,9 +4,11 @@ namespace App\Entity;
 
 use App\Repository\CommentRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=CommentRepository::class)
+ * @ORM\HasLifecycleCallbacks()
  */
 class Comment
 {
@@ -18,18 +20,28 @@ class Comment
     private $id;
 
     /**
+     * @ORM\ManyToOne(targetEntity=Conference::class, inversedBy="comments")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $conference;
+
+    /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Assert\NotBlank]
     private $author;
 
     /**
      * @ORM\Column(type="text")
      */
+    #[Assert\NotBlank]
     private $text;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Assert\NotBlank]
+    #[Assert\Email]
     private $email;
 
     /**
@@ -37,17 +49,28 @@ class Comment
      */
     private $createdAt;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Conference::class, inversedBy="comments")
-     * @ORM\JoinColumn(nullable=false)
-     */
-   private $conference;
-
    /**
     * @ORM\Column(type="string", length=255, nullable=true)
     */
    private $photoFilename;
 
+   /**
+    * @ORM\Column(type="string", length=255, options={"default": "submitted"})
+    */
+    private $state = 'submitted';
+
+    public function __toString(): string
+    {
+        return (string) $this->getEmail();
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedAtValue()
+    {
+        $this->createdAt = new \DateTime();
+    }
 
 
     public function getId(): ?int
@@ -123,6 +146,18 @@ class Comment
     public function setPhotoFilename(?string $photoFilename): self
     {
         $this->photoFilename = $photoFilename;
+
+        return $this;
+    }
+
+    public function getState(): ?string
+    {
+        return $this->state;
+    }
+
+    public function setState(string $state): self
+    {
+        $this->state = $state;
 
         return $this;
     }
