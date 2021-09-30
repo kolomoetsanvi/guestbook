@@ -1,0 +1,11 @@
+### GET request with a header
+GET https://127.0.0.1:8000/api/conferences
+Accept: application/json
+
+### GET request with a header
+GET https://127.0.0.1:8000/api/conferences/7
+Accept: application/json
+
+### GET request with a header
+GET https://127.0.0.1:8000/api/comments
+Accept: application/json
